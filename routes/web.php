@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgreementController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\PartnerController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('agreements/{agreement}', [AgreementController::class, 'show'])->middleware('can:agreements.view')->name('agreements.show');
     Route::get('agreements/{agreement}/edit', [AgreementController::class, 'edit'])->middleware('can:agreements.update')->name('agreements.edit');
     Route::put('agreements/{agreement}', [AgreementController::class, 'update'])->middleware('can:agreements.update')->name('agreements.update');
+
+    Route::get('approvals', [ApprovalController::class, 'index'])->middleware('can:approvals.view')->name('approvals.index');
+    Route::post('agreements/{agreement}/submit', [ApprovalController::class, 'submit'])->middleware('can:agreements.update')->name('agreements.submit');
+    Route::post('agreements/{agreement}/review', [ApprovalController::class, 'review'])->middleware('can:approvals.review')->name('agreements.review');
 });
 
 require __DIR__.'/settings.php';
