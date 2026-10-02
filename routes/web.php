@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgreementController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\DocumentController;
@@ -13,15 +14,14 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 Route::middleware(['auth','verified'])->group(function () {
     Route::view('dashboard','dashboard')->middleware('can:dashboard.view')->name('dashboard');
+    Route::get('alerts',[AlertController::class,'index'])->middleware('can:alerts.view')->name('alerts.index');
     Route::get('reports',[ReportController::class,'index'])->middleware('can:reports.view')->name('reports.index');
     Route::get('audit',[AuditController::class,'index'])->middleware('can:audit.view')->name('audit.index');
-
     Route::get('users',[UserManagementController::class,'index'])->middleware('can:users.manage')->name('users.index');
     Route::get('users/create',[UserManagementController::class,'create'])->middleware('can:users.manage')->name('users.create');
     Route::post('users',[UserManagementController::class,'store'])->middleware('can:users.manage')->name('users.store');
     Route::get('users/{user}/edit',[UserManagementController::class,'edit'])->middleware('can:users.manage')->name('users.edit');
     Route::put('users/{user}',[UserManagementController::class,'update'])->middleware('can:users.manage')->name('users.update');
-
     Route::get('partners',[PartnerController::class,'index'])->middleware('can:partners.view')->name('partners.index');
     Route::get('partners/create',[PartnerController::class,'create'])->middleware('can:partners.create')->name('partners.create');
     Route::post('partners',[PartnerController::class,'store'])->middleware('can:partners.create')->name('partners.store');
