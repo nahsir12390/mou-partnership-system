@@ -42,7 +42,7 @@ class AgreementController extends Controller
 
     public function show(Agreement $agreement): View
     {
-        $agreement->load(['partner','department','responsibleOfficer','creator','approvalActions.user','obligations.department','obligations.responsibleOfficer']);
+        $agreement->load(['partner','department','responsibleOfficer','creator','approvalActions.user','obligations.department','obligations.responsibleOfficer','documents.uploader']);
         return view('agreements.show', compact('agreement'));
     }
 
