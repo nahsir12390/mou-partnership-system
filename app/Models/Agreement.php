@@ -27,4 +27,5 @@ class Agreement extends Model
     public function responsibleOfficer(): BelongsTo { return $this->belongsTo(User::class, 'responsible_officer_id'); }
     public function creator(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
     public function approvalActions(): HasMany { return $this->hasMany(ApprovalAction::class)->latest(); }
+    public function obligations(): HasMany { return $this->hasMany(Obligation::class)->orderByRaw('due_date IS NULL, due_date ASC'); }
 }
