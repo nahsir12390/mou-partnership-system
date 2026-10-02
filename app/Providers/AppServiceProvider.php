@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             'dashboard.view','partners.view','partners.create','partners.update',
             'agreements.view','agreements.create','agreements.update',
             'approvals.view','approvals.review','obligations.view','obligations.manage',
-            'documents.view','documents.manage','reports.view','audit.view','users.manage',
+            'documents.view','documents.manage','reports.view','audit.view','alerts.view','users.manage',
         ];
 
         foreach ($permissions as $permission) {
