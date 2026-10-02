@@ -16,7 +16,11 @@ function lifecycleAgreement(array $overrides=[]): Agreement {
 }
 
 test('management can open live reports', function () {
-    $this->actingAs(reportUser('management'))->get(route('reports.index'))->assertOk()->assertSee('Management Reports')->assertSee('Renewal & Expiry Forecast');
+    $this->actingAs(reportUser('management'))
+        ->get(route('reports.index'))
+        ->assertOk()
+        ->assertSee('Management Reports')
+        ->assertSee('Renewal & Expiry Forecast', false);
 });
 
 test('department officer cannot access management reports', function () {
