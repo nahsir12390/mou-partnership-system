@@ -21,10 +21,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     private const ROLE_PERMISSIONS = [
         'system-administrator' => ['*'],
-        'management' => ['dashboard.view','partners.view','agreements.view','approvals.view','obligations.view','documents.view','reports.view','audit.view'],
-        'legal-review-officer' => ['dashboard.view','partners.view','agreements.view','agreements.update','approvals.view','approvals.review','documents.view'],
-        'department-officer' => ['dashboard.view','partners.view','partners.create','partners.update','agreements.view','agreements.create','agreements.update','obligations.view','obligations.manage','documents.view','documents.manage'],
-        'read-only-user' => ['dashboard.view','partners.view','agreements.view','obligations.view','documents.view'],
+        'management' => ['dashboard.view','partners.view','agreements.view','approvals.view','obligations.view','documents.view','reports.view','audit.view','alerts.view'],
+        'legal-review-officer' => ['dashboard.view','partners.view','agreements.view','agreements.update','approvals.view','approvals.review','documents.view','alerts.view'],
+        'department-officer' => ['dashboard.view','partners.view','partners.create','partners.update','agreements.view','agreements.create','agreements.update','obligations.view','obligations.manage','documents.view','documents.manage','alerts.view'],
+        'read-only-user' => ['dashboard.view','partners.view','agreements.view','obligations.view','documents.view','alerts.view'],
     ];
 
     protected function casts(): array
