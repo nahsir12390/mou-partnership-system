@@ -1,1 +1,87 @@
-<x-layouts::app :title="__('Document Repository')"><div class="flex w-full flex-1 flex-col gap-6"><div><p class="text-sm font-medium text-zinc-500">Records & Governance</p><h1 class="mt-1 text-3xl font-semibold tracking-tight">Document Repository</h1><p class="mt-1 text-sm text-zinc-500">Controlled MoU drafts, signed copies, correspondence and supporting records.</p></div><form method="GET" class="grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 sm:grid-cols-[1fr_220px_auto]"><input name="search" value="{{ request('search') }}" placeholder="Search document, agreement or reference..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"><select name="type" class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"><option value="">All document types</option>@foreach(['draft_mou'=>'Draft MoU','reviewed_mou'=>'Reviewed MoU','signed_mou'=>'Signed MoU','supporting_document'=>'Supporting Document','correspondence'=>'Correspondence','other'=>'Other'] as $value=>$label)<option value="{{ $value }}" @selected(request('type')===$value)>{{ $label }}</option>@endforeach</select><flux:button type="submit">Filter</flux:button></form><section class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-800/60"><tr><th class="px-5 py-3">Document</th><th class="px-5 py-3">Agreement</th><th class="px-5 py-3">Type / Version</th><th class="px-5 py-3">Uploaded</th><th class="px-5 py-3"></th></tr></thead><tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">@forelse($documents as $document)<tr><td class="px-5 py-4"><div class="flex items-center gap-3"><div class="flex size-9 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800"><flux:icon name="document-text" class="size-4"/></div><div><p class="font-medium">{{ $document->title }}</p><p class="mt-0.5 text-xs text-zinc-500">{{ $document->original_name }} · {{ $document->human_size }}</p></div></div></td><td class="px-5 py-4"><a class="font-medium hover:underline" href="{{ route('agreements.show',$document->agreement) }}">{{ $document->agreement->reference_number }}</a><p class="mt-0.5 text-xs text-zinc-500">{{ $document->agreement->partner->name }}</p></td><td class="px-5 py-4"><p>{{ ucwords(str_replace('_',' ',$document->type)) }}</p><p class="text-xs text-zinc-500">Version {{ $document->version }} @if($document->is_final)· Final copy@endif</p></td><td class="px-5 py-4"><p>{{ $document->created_at->format('d M Y') }}</p><p class="text-xs text-zinc-500">{{ $document->uploader->name }}</p></td><td class="px-5 py-4 text-right"><flux:button size="sm" variant="ghost" icon="arrow-down-tray" :href="route('documents.download',$document)">Download</flux:button></td></tr>@empty<tr><td colspan="5" class="px-5 py-14 text-center"><flux:icon name="folder-open" class="mx-auto size-8 text-zinc-300"/><p class="mt-3 font-medium">No documents found</p><p class="mt-1 text-sm text-zinc-500">Agreement files will appear here once uploaded.</p></td></tr>@endforelse</tbody></table></div>@if($documents->hasPages())<div class="border-t border-zinc-100 p-4 dark:border-zinc-800">{{ $documents->links() }}</div>@endif</section></div></x-layouts::app>
+<x-layouts::app :title="__('Document Repository')">
+    <div class="flex w-full flex-1 flex-col gap-6">
+        <div>
+            <p class="text-sm font-medium text-zinc-500">Records & Governance</p>
+            <h1 class="mt-1 text-3xl font-semibold tracking-tight">Document Repository</h1>
+            <p class="mt-1 text-sm text-zinc-500">Controlled MoU drafts, signed copies, correspondence and supporting records.</p>
+        </div>
+
+        <form method="GET" class="grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 sm:grid-cols-[1fr_220px_auto]">
+            <input name="search" value="{{ request('search') }}" placeholder="Search document, agreement or reference..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+            <select name="type" class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                <option value="">All document types</option>
+                @foreach (['draft_mou'=>'Draft MoU','reviewed_mou'=>'Reviewed MoU','signed_mou'=>'Signed MoU','supporting_document'=>'Supporting Document','correspondence'=>'Correspondence','other'=>'Other'] as $value => $label)
+                    <option value="{{ $value }}" @selected(request('type') === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+            <flux:button type="submit">Filter</flux:button>
+        </form>
+
+        <section class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-800/60">
+                        <tr>
+                            <th class="px-5 py-3">Document</th>
+                            <th class="px-5 py-3">Agreement</th>
+                            <th class="px-5 py-3">Type / Version</th>
+                            <th class="px-5 py-3">Uploaded</th>
+                            <th class="px-5 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                        @forelse ($documents as $document)
+                            <tr>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex size-9 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                            <flux:icon name="document-text" class="size-4" />
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">{{ $document->title }}</p>
+                                            <p class="mt-0.5 text-xs text-zinc-500">{{ $document->original_name }} · {{ $document->human_size }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <a class="font-medium hover:underline" href="{{ route('agreements.show', $document->agreement) }}">{{ $document->agreement->reference_number }}</a>
+                                    <p class="mt-0.5 text-xs text-zinc-500">{{ $document->agreement->partner->name }}</p>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <p>{{ ucwords(str_replace('_', ' ', $document->type)) }}</p>
+                                    <p class="text-xs text-zinc-500">
+                                        Version {{ $document->version }}
+                                        @if ($document->is_final)
+                                            · Final copy
+                                        @endif
+                                    </p>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <p>{{ $document->created_at->format('d M Y') }}</p>
+                                    <p class="text-xs text-zinc-500">{{ $document->uploader->name }}</p>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <flux:button size="sm" variant="ghost" icon="arrow-down-tray" :href="route('documents.download', $document)">Download</flux:button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-14 text-center">
+                                    <flux:icon name="folder-open" class="mx-auto size-8 text-zinc-300" />
+                                    <p class="mt-3 font-medium">No documents found</p>
+                                    <p class="mt-1 text-sm text-zinc-500">Agreement files will appear here once uploaded.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($documents->hasPages())
+                <div class="border-t border-zinc-100 p-4 dark:border-zinc-800">
+                    {{ $documents->links() }}
+                </div>
+            @endif
+        </section>
+    </div>
+</x-layouts::app>
