@@ -8,12 +8,14 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ObligationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 Route::middleware(['auth','verified'])->group(function () {
     Route::view('dashboard','dashboard')->middleware('can:dashboard.view')->name('dashboard');
+    Route::get('search',[SearchController::class,'index'])->middleware('can:agreements.view')->name('search.index');
     Route::get('alerts',[AlertController::class,'index'])->middleware('can:alerts.view')->name('alerts.index');
     Route::get('reports',[ReportController::class,'index'])->middleware('can:reports.view')->name('reports.index');
     Route::get('reports/export/{type}',[ReportController::class,'export'])->middleware('can:reports.view')->name('reports.export');
