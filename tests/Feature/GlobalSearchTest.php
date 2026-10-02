@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Agreement;
+use App\Models\Department;
 use App\Models\Partner;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -27,4 +28,28 @@ test('global search requires at least two characters', function () {
 test('inactive user cannot use global search', function () {
     $user=searchUser('read-only-user'); $user->update(['is_active'=>false]);
     $this->actingAs($user)->get(route('search.index',['q'=>'MOU']))->assertForbidden();
+});
+
+test('department officer cannot discover another departments agreement through global search', function () {
+    $officer = searchUser('department-officer');
+    $otherDepartment = Department::whereKeyNot($officer->department_id)->first();
+    if (! $otherDepartment) $otherDepartment = Department::create(['name'=>'Restricted Research Unit','code'=>'RRU','is_active'=>true]);
+
+    Agreement::create([
+        'reference_number'=>'MOU/SECRET/991',
+        'title'=>'Restricted Cross Department Partnership',
+        'partner_id'=>Partner::firstOrFail()->id,
+        'department_id'=>$otherDepartment->id,
+        'responsible_officer_id'=>searchUser('system-administrator')->id,
+        'agreement_type'=>'Memorandum of Understanding',
+        'status'=>'active',
+        'renewal_status'=>'not_due',
+        'created_by'=>searchUser('system-administrator')->id,
+    ]);
+
+    $this->actingAs($officer)
+        ->get(route('search.index',['q'=>'Restricted Cross']))
+        ->assertOk()
+        ->assertDontSee('Restricted Cross Department Partnership')
+        ->assertDontSee('MOU/SECRET/991');
 });
