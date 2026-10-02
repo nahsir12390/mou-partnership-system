@@ -16,6 +16,7 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::view('dashboard','dashboard')->middleware('can:dashboard.view')->name('dashboard');
     Route::get('alerts',[AlertController::class,'index'])->middleware('can:alerts.view')->name('alerts.index');
     Route::get('reports',[ReportController::class,'index'])->middleware('can:reports.view')->name('reports.index');
+    Route::get('reports/export/{type}',[ReportController::class,'export'])->middleware('can:reports.view')->name('reports.export');
     Route::get('audit',[AuditController::class,'index'])->middleware('can:audit.view')->name('audit.index');
     Route::get('users',[UserManagementController::class,'index'])->middleware('can:users.manage')->name('users.index');
     Route::get('users/create',[UserManagementController::class,'create'])->middleware('can:users.manage')->name('users.create');
