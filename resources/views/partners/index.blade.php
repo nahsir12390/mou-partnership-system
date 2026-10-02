@@ -1,0 +1,28 @@
+<x-layouts::app :title="__('Partners')">
+    <div class="flex w-full flex-1 flex-col gap-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div><p class="text-sm font-medium text-zinc-500">Partnership Management</p><h1 class="mt-1 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">Partner Registry</h1><p class="mt-1 text-sm text-zinc-500">Maintain institutional partner profiles and contact information.</p></div>
+            <flux:button variant="primary" icon="plus" :href="route('partners.create')" wire:navigate>Add Partner</flux:button>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"><p class="text-sm text-zinc-500">Total Partners</p><p class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ \App\Models\Partner::count() }}</p></div>
+            <div class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"><p class="text-sm text-zinc-500">Active</p><p class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ \App\Models\Partner::where('status', 'active')->count() }}</p></div>
+            <div class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"><p class="text-sm text-zinc-500">Prospective</p><p class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ \App\Models\Partner::where('status', 'prospective')->count() }}</p></div>
+        </div>
+
+        <section class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <form method="GET" class="grid gap-3 border-b border-zinc-100 p-4 md:grid-cols-4 dark:border-zinc-800">
+                <input name="search" value="{{ request('search') }}" placeholder="Search partners..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800" />
+                <select name="category" class="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"><option value="">All categories</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(request('category') === $category)>{{ $category }}</option>@endforeach</select>
+                <select name="status" class="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"><option value="">All statuses</option><option value="active" @selected(request('status') === 'active')>Active</option><option value="prospective" @selected(request('status') === 'prospective')>Prospective</option><option value="inactive" @selected(request('status') === 'inactive')>Inactive</option></select>
+                <div class="flex gap-2"><flux:button type="submit" variant="filled" class="flex-1">Filter</flux:button><flux:button :href="route('partners.index')" variant="ghost">Reset</flux:button></div>
+            </form>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm"><thead class="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-800/60"><tr><th class="px-5 py-3">Partner</th><th class="px-5 py-3">Category</th><th class="px-5 py-3">Location</th><th class="px-5 py-3">Primary Contact</th><th class="px-5 py-3">Status</th><th class="px-5 py-3"></th></tr></thead>
+                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">@forelse($partners as $partner)<tr class="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40"><td class="px-5 py-4"><a href="{{ route('partners.show', $partner) }}" class="font-medium text-zinc-950 hover:underline dark:text-white">{{ $partner->name }}</a><p class="mt-1 text-xs text-zinc-500">Added {{ $partner->created_at->diffForHumans() }}</p></td><td class="px-5 py-4 text-zinc-600 dark:text-zinc-300">{{ $partner->category ?: '—' }}</td><td class="px-5 py-4 text-zinc-600 dark:text-zinc-300">{{ collect([$partner->city, $partner->country])->filter()->join(', ') ?: '—' }}</td><td class="px-5 py-4"><p class="text-zinc-700 dark:text-zinc-200">{{ $partner->contact_name ?: '—' }}</p><p class="text-xs text-zinc-500">{{ $partner->contact_email }}</p></td><td class="px-5 py-4"><span class="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium capitalize text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{{ $partner->status }}</span></td><td class="px-5 py-4 text-right"><flux:button size="sm" variant="ghost" :href="route('partners.show', $partner)">View</flux:button></td></tr>@empty<tr><td colspan="6" class="px-5 py-14 text-center"><flux:icon name="building-office" class="mx-auto size-8 text-zinc-300"/><p class="mt-3 font-medium text-zinc-700 dark:text-zinc-200">No partners found</p><p class="mt-1 text-sm text-zinc-500">Add the first institutional partner to begin.</p></td></tr>@endforelse</tbody></table>
+            </div>
+            @if($partners->hasPages())<div class="border-t border-zinc-100 p-4 dark:border-zinc-800">{{ $partners->links() }}</div>@endif
+        </section>
+    </div>
+</x-layouts::app>
