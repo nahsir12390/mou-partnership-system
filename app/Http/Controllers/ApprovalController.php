@@ -26,7 +26,7 @@ class ApprovalController extends Controller
     public function submit(Request $request, Agreement $agreement): RedirectResponse
     {
         abort_unless($request->user()->hasPermission('agreements.update'), 403);
-        abort_unless(in_array($agreement->status, ['draft'], true), 422, 'Only draft agreements can be submitted for review.');
+        abort_unless($agreement->status === 'draft', 422, 'Only draft agreements can be submitted for review.');
 
         $this->transition($request, $agreement, 'submitted', 'submitted', 'Legal review', $request->input('comment'));
 
@@ -39,12 +39,15 @@ class ApprovalController extends Controller
 
         $data = $request->validate([
             'decision' => ['required', Rule::in(['start_review','approve','request_changes','reject'])],
-            'comment' => ['nullable','string','max:3000'],
+            'comment' => [
+                Rule::requiredIf(fn () => in_array($request->input('decision'), ['request_changes','reject'], true)),
+                'nullable',
+                'string',
+                'max:3000',
+            ],
+        ], [
+            'comment.required' => 'Please provide a reason for this decision.',
         ]);
-
-        if (in_array($data['decision'], ['request_changes','reject'], true) && blank($data['comment'])) {
-            return back()->withErrors(['comment' => 'Please provide a reason for this decision.'])->withInput();
-        }
 
         [$toStatus, $stage, $message] = match ($data['decision']) {
             'start_review' => ['under_review','Legal review','Review started.'],
@@ -57,6 +60,7 @@ class ApprovalController extends Controller
             'start_review' => ['submitted'],
             'approve', 'request_changes', 'reject' => ['submitted','under_review'],
         };
+
         abort_unless(in_array($agreement->status, $allowed, true), 422, 'This decision is not available at the current workflow stage.');
 
         $this->transition($request, $agreement, $toStatus, $data['decision'], $stage, $data['comment'] ?? null);
