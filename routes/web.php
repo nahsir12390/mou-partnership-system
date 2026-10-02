@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ObligationController;
 use App\Http\Controllers\PartnerController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('obligations/{obligation}', [ObligationController::class, 'update'])->middleware('can:obligations.manage')->name('obligations.update');
     Route::patch('obligations/{obligation}/progress', [ObligationController::class, 'progress'])->middleware('can:obligations.manage')->name('obligations.progress');
     Route::delete('obligations/{obligation}', [ObligationController::class, 'destroy'])->middleware('can:obligations.manage')->name('obligations.destroy');
+
+    Route::get('documents', [DocumentController::class, 'index'])->middleware('can:documents.view')->name('documents.index');
+    Route::get('agreements/{agreement}/documents/create', [DocumentController::class, 'create'])->middleware('can:documents.manage')->name('documents.create');
+    Route::post('agreements/{agreement}/documents', [DocumentController::class, 'store'])->middleware('can:documents.manage')->name('documents.store');
+    Route::get('documents/{document}/download', [DocumentController::class, 'download'])->middleware('can:documents.view')->name('documents.download');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->middleware('can:documents.manage')->name('documents.destroy');
 });
 
 require __DIR__.'/settings.php';
