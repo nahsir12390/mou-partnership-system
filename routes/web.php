@@ -5,12 +5,14 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ObligationController;
 use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->middleware('can:dashboard.view')->name('dashboard');
+    Route::get('reports', [ReportController::class, 'index'])->middleware('can:reports.view')->name('reports.index');
 
     Route::get('partners', [PartnerController::class, 'index'])->middleware('can:partners.view')->name('partners.index');
     Route::get('partners/create', [PartnerController::class, 'create'])->middleware('can:partners.create')->name('partners.create');
