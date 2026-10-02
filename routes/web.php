@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\ObligationController;
 use App\Http\Controllers\PartnerController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('approvals', [ApprovalController::class, 'index'])->middleware('can:approvals.view')->name('approvals.index');
     Route::post('agreements/{agreement}/submit', [ApprovalController::class, 'submit'])->middleware('can:agreements.update')->name('agreements.submit');
     Route::post('agreements/{agreement}/review', [ApprovalController::class, 'review'])->middleware('can:approvals.review')->name('agreements.review');
+
+    Route::get('obligations', [ObligationController::class, 'index'])->middleware('can:obligations.view')->name('obligations.index');
+    Route::get('agreements/{agreement}/obligations/create', [ObligationController::class, 'create'])->middleware('can:obligations.manage')->name('obligations.create');
+    Route::post('agreements/{agreement}/obligations', [ObligationController::class, 'store'])->middleware('can:obligations.manage')->name('obligations.store');
+    Route::get('obligations/{obligation}/edit', [ObligationController::class, 'edit'])->middleware('can:obligations.manage')->name('obligations.edit');
+    Route::put('obligations/{obligation}', [ObligationController::class, 'update'])->middleware('can:obligations.manage')->name('obligations.update');
+    Route::patch('obligations/{obligation}/progress', [ObligationController::class, 'progress'])->middleware('can:obligations.manage')->name('obligations.progress');
+    Route::delete('obligations/{obligation}', [ObligationController::class, 'destroy'])->middleware('can:obligations.manage')->name('obligations.destroy');
 });
 
 require __DIR__.'/settings.php';
