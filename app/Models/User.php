@@ -21,19 +21,26 @@ class User extends Authenticatable implements MustVerifyEmail
 
     private const ROLE_PERMISSIONS = [
         'system-administrator' => ['*'],
-        'management' => ['dashboard.view','partners.view','agreements.view','approvals.view','obligations.view','documents.view','reports.view','audit.view','alerts.view'],
-        'legal-review-officer' => ['dashboard.view','partners.view','agreements.view','agreements.update','approvals.view','approvals.review','documents.view','alerts.view'],
-        'department-officer' => ['dashboard.view','partners.view','partners.create','partners.update','agreements.view','agreements.create','agreements.update','obligations.view','obligations.manage','documents.view','documents.manage','alerts.view'],
-        'read-only-user' => ['dashboard.view','partners.view','agreements.view','obligations.view','documents.view','alerts.view'],
+        'management' => ['dashboard.view', 'partners.view', 'agreements.view', 'agreements.lifecycle', 'renewals.manage', 'approvals.view', 'obligations.view', 'documents.view', 'reports.view', 'audit.view', 'alerts.view'],
+        'legal-review-officer' => ['dashboard.view', 'partners.view', 'agreements.view', 'agreements.update', 'agreements.lifecycle', 'renewals.manage', 'approvals.view', 'approvals.review', 'documents.view', 'alerts.view'],
+        'department-officer' => ['dashboard.view', 'partners.view', 'partners.create', 'partners.update', 'agreements.view', 'agreements.create', 'agreements.update', 'obligations.view', 'obligations.manage', 'documents.view', 'documents.manage', 'alerts.view'],
+        'read-only-user' => ['dashboard.view', 'partners.view', 'agreements.view', 'obligations.view', 'documents.view', 'alerts.view'],
     ];
 
     protected function casts(): array
     {
-        return ['email_verified_at'=>'datetime','password'=>'hashed','is_active'=>'boolean'];
+        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'is_active' => 'boolean'];
     }
 
-    public function department(): BelongsTo { return $this->belongsTo(Department::class); }
-    public function role(): BelongsTo { return $this->belongsTo(Role::class); }
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
 
     public function hasRole(string ...$roles): bool
     {
@@ -42,17 +49,28 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasPermission(string $permission): bool
     {
-        if (! $this->is_active || ! $this->role) return false;
+        if (! $this->is_active || ! $this->role) {
+            return false;
+        }
         $permissions = self::ROLE_PERMISSIONS[$this->role->slug] ?? [];
+
         return in_array('*', $permissions, true) || in_array($permission, $permissions, true);
     }
 
-    public function isAdministrator(): bool { return $this->hasRole('system-administrator'); }
-    public function canManageUsers(): bool { return $this->hasPermission('users.manage'); }
+    public function isAdministrator(): bool
+    {
+        return $this->hasRole('system-administrator');
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->hasPermission('users.manage');
+    }
 
     public function initials(): string
     {
         $initials = Str::initials($this->name, true);
+
         return Str::length($initials) > 1 ? Str::substr($initials, 0, 1).Str::substr($initials, -1) : $initials;
     }
 }

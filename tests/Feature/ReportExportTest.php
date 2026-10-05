@@ -5,7 +5,9 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
-beforeEach(function () { $this->seed(DatabaseSeeder::class); });
+beforeEach(function () {
+    $this->seed(DatabaseSeeder::class);
+});
 
 function reportExportUser(string $slug): User
 {

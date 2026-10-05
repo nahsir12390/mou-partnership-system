@@ -27,34 +27,38 @@ class SearchController extends Controller
             $isInstitutionWide = $user->hasRole('system-administrator', 'management', 'legal-review-officer');
 
             $agreementScope = function (Builder $query) use ($isInstitutionWide, $departmentId, $user): void {
-                if ($isInstitutionWide) return;
+                if ($isInstitutionWide) {
+                    return;
+                }
 
                 $query->where(function (Builder $scope) use ($departmentId, $user): void {
-                    if ($departmentId) $scope->where('department_id', $departmentId);
+                    if ($departmentId) {
+                        $scope->where('department_id', $departmentId);
+                    }
                     $scope->orWhere('responsible_officer_id', $user->id)
                         ->orWhere('created_by', $user->id);
                 });
             };
 
-            $agreements = Agreement::with(['partner','department'])
-                ->where(fn($q) => $q->where('title','like',$like)->orWhere('reference_number','like',$like)->orWhere('purpose','like',$like))
+            $agreements = Agreement::with(['partner', 'department'])
+                ->where(fn ($q) => $q->where('title', 'like', $like)->orWhere('reference_number', 'like', $like)->orWhere('purpose', 'like', $like))
                 ->where($agreementScope)
                 ->latest()->limit(15)->get();
 
             $visibleAgreementIds = Agreement::query()->where($agreementScope)->select('id');
 
             $partners = Partner::query()
-                ->where(fn($q) => $q->where('name','like',$like)->orWhere('contact_person','like',$like)->orWhere('email','like',$like))
-                ->when(! $isInstitutionWide, fn($q) => $q->whereHas('agreements', fn($a) => $a->where($agreementScope)))
+                ->where(fn ($q) => $q->where('name', 'like', $like)->orWhere('contact_name', 'like', $like)->orWhere('contact_email', 'like', $like))
+                ->when(! $isInstitutionWide, fn ($q) => $q->whereHas('agreements', fn ($a) => $a->where($agreementScope)))
                 ->orderBy('name')->limit(15)->get();
 
             $obligations = Obligation::with('agreement')
-                ->where(fn($q) => $q->where('title','like',$like)->orWhere('description','like',$like))
+                ->where(fn ($q) => $q->where('title', 'like', $like)->orWhere('description', 'like', $like))
                 ->whereIn('agreement_id', clone $visibleAgreementIds)
                 ->latest()->limit(15)->get();
 
             $documents = Document::with('agreement')
-                ->where(fn($q) => $q->where('title','like',$like)->orWhere('original_name','like',$like))
+                ->where(fn ($q) => $q->where('title', 'like', $like)->orWhere('original_name', 'like', $like))
                 ->whereIn('agreement_id', clone $visibleAgreementIds)
                 ->latest()->limit(15)->get();
         }

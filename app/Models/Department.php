@@ -10,14 +10,25 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','code','description','is_active'];
+    protected $fillable = ['name', 'code', 'description', 'is_active'];
 
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];
     }
 
-    public function users(): HasMany { return $this->hasMany(User::class); }
-    public function agreements(): HasMany { return $this->hasMany(Agreement::class); }
-    public function obligations(): HasMany { return $this->hasMany(Obligation::class); }
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function agreements(): HasMany
+    {
+        return $this->hasMany(Agreement::class);
+    }
+
+    public function obligations(): HasMany
+    {
+        return $this->hasMany(Obligation::class);
+    }
 }

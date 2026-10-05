@@ -4,9 +4,22 @@ $user = auth()->user();
 $agreementBase = \App\Models\Agreement::query();
 $obligationBase = \App\Models\Obligation::query();
 $partnerBase = \App\Models\Partner::query();
-if ($user->hasRole('department-officer','read-only-user') && $user->department_id) {
-    $agreementBase->where('department_id',$user->department_id);
-    $obligationBase->where('department_id',$user->department_id);
+if (! $user->hasRole('system-administrator', 'management', 'legal-review-officer')) {
+    $visibleAgreement = function ($query) use ($user) {
+        $query->where(function ($scope) use ($user) {
+            if ($user->department_id) {
+                $scope->where('department_id', $user->department_id);
+            }
+            $scope->orWhere('responsible_officer_id', $user->id)
+                ->orWhere('created_by', $user->id);
+        });
+    };
+    $agreementBase->where($visibleAgreement);
+    $obligationBase->whereHas('agreement', $visibleAgreement);
+    $partnerBase->where(function ($scope) use ($user, $visibleAgreement) {
+        $scope->where('created_by', $user->id)
+            ->orWhereHas('agreements', $visibleAgreement);
+    });
 }
 $stats = [
     ['label'=>'Total Partners','value'=>(clone $partnerBase)->count(),'note'=>'Institutional relationships','icon'=>'building-office'],

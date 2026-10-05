@@ -16,6 +16,13 @@ class Partner extends Model
         'contact_name', 'contact_email', 'contact_phone', 'status', 'notes', 'created_by',
     ];
 
-    public function creator(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
-    public function agreements(): HasMany { return $this->hasMany(Agreement::class); }
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function agreements(): HasMany
+    {
+        return $this->hasMany(Agreement::class);
+    }
 }
