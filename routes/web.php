@@ -56,6 +56,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('agreements/{agreement}/documents/create', [DocumentController::class, 'create'])->middleware('can:documents.manage')->name('documents.create');
     Route::post('agreements/{agreement}/documents', [DocumentController::class, 'store'])->middleware('can:documents.manage')->name('documents.store');
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->middleware('can:documents.view')->name('documents.download');
-    Route::delete('documents/{document}',[DocumentController::class, 'destroy'])->middleware('can:documents.manage')->name('documents.destroy');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->middleware('can:documents.manage')->name('documents.destroy');
 });
 require __DIR__.'/settings.php';

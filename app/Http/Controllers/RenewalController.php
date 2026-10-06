@@ -13,11 +13,15 @@ class RenewalController extends Controller
 {
     public function create(Agreement $agreement): View
     {
+        $this->ensureRenewable($agreement);
+
         return view('renewals.create', compact('agreement'));
     }
 
     public function store(Request $request, Agreement $agreement): RedirectResponse
     {
+        $this->ensureRenewable($agreement);
+
         $data = $request->validate([
             'decision' => ['required', Rule::in(['renewed', 'extended', 'not_renewing'])],
             'decision_date' => ['required', 'date'],
@@ -45,5 +49,14 @@ class RenewalController extends Controller
         });
 
         return redirect()->route('agreements.show', $agreement)->with('success', 'Renewal decision recorded successfully.');
+    }
+
+    private function ensureRenewable(Agreement $agreement): void
+    {
+        abort_unless(
+            in_array($agreement->status, ['active', 'expired', 'renewed'], true),
+            422,
+            'Renewal decisions can only be recorded for agreements that have reached implementation.',
+        );
     }
 }

@@ -71,5 +71,5 @@ test('department officer cannot download another departments document by url', f
     $agreement = Agreement::create(['reference_number' => 'MOU/PRIVATE/002', 'title' => 'Restricted Agreement', 'partner_id' => Partner::firstOrFail()->id, 'department_id' => $other->id, 'responsible_officer_id' => documentUser('system-administrator')->id, 'agreement_type' => 'Memorandum of Understanding', 'status' => 'active', 'renewal_status' => 'not_due', 'created_by' => documentUser('system-administrator')->id]);
     $document = Document::create(['agreement_id' => $agreement->id, 'title' => 'Restricted File', 'type' => 'supporting_document', 'version' => 1, 'original_name' => 'restricted.pdf', 'stored_name' => 'restricted.pdf', 'path' => 'private/restricted.pdf', 'mime_type' => 'application/pdf', 'size' => 100, 'uploaded_by' => documentUser('system-administrator')->id]);
     Storage::disk('local')->put($document->path, 'secret');
-    $this->actingAs($officer)->get(route('documents.download',$document))->assertForbidden();
+    $this->actingAs($officer)->get(route('documents.download', $document))->assertForbidden();
 });

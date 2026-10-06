@@ -84,6 +84,9 @@ class AgreementController extends Controller
         $data = $this->validated($request);
         $this->enforceAssignmentScope($request, $data);
         $data['created_by'] = $request->user()->id;
+        $data['status'] = 'draft';
+        $data['renewal_status'] = 'not_due';
+        $data['approval_stage'] = null;
         $agreement = Agreement::create($data);
 
         return redirect()->route('agreements.show', $agreement)->with('success', 'Agreement created successfully.');
@@ -156,6 +159,6 @@ class AgreementController extends Controller
 
     private function validated(Request $request, ?Agreement $agreement = null): array
     {
-        return $request->validate(['reference_number' => ['required', 'string', 'max:100', Rule::unique('agreements')->ignore($agreement)], 'title' => ['required', 'string', 'max:255'], 'partner_id' => ['required', 'exists:partners,id'], 'department_id' => ['nullable', 'exists:departments,id'], 'responsible_officer_id' => ['nullable', 'exists:users,id'], 'agreement_type' => ['required', 'string', 'max:100'], 'purpose' => ['nullable', 'string', 'max:5000'], 'start_date' => ['nullable', 'date'], 'expiry_date' => ['nullable', 'date', 'after_or_equal:start_date'], 'status' => ['required', Rule::in(['draft', 'submitted', 'under_review', 'approved', 'awaiting_signature', 'active', 'expired', 'renewed', 'closed', 'terminated'])], 'approval_stage' => ['nullable', 'string', 'max:100'], 'renewal_status' => ['required', Rule::in(['not_due', 'due_soon', 'due', 'renewed', 'not_renewing'])], 'notes' => ['nullable', 'string', 'max:5000']]);
+        return $request->validate(['reference_number' => ['required', 'string', 'max:100', Rule::unique('agreements')->ignore($agreement)], 'title' => ['required', 'string', 'max:255'], 'partner_id' => ['required', 'exists:partners,id'], 'department_id' => ['nullable', 'exists:departments,id'], 'responsible_officer_id' => ['nullable', 'exists:users,id'], 'agreement_type' => ['required', 'string', 'max:100'], 'purpose' => ['nullable', 'string', 'max:5000'], 'start_date' => ['nullable', 'date'], 'expiry_date' => ['nullable', 'date', 'after_or_equal:start_date'], 'notes' => ['nullable', 'string', 'max:5000']]);
     }
 }

@@ -63,6 +63,6 @@ class SearchController extends Controller
                 ->latest()->limit(15)->get();
         }
 
-        return view('search.index', compact('term','agreements','partners','obligations','documents'));
+        return view('search.index', compact('term', 'agreements', 'partners', 'obligations', 'documents'));
     }
 }

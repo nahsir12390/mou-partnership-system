@@ -68,6 +68,19 @@ test('renewal decision preserves expiry history and updates agreement', function
         ->and($agreement->fresh()->renewal_status)->toBe('renewed');
 });
 
+test('draft agreement cannot receive a renewal decision', function () {
+    $agreement = completionAgreement('draft');
+
+    $this->actingAs(lifecycleUser('management'))->post(route('renewals.store', $agreement), [
+        'decision' => 'renewed',
+        'decision_date' => '2026-10-05',
+        'new_expiry_date' => '2027-12-31',
+    ])->assertStatus(422);
+
+    expect($agreement->renewalRecords()->count())->toBe(0)
+        ->and($agreement->fresh()->status)->toBe('draft');
+});
+
 test('model edits are retained in permanent audit history', function () {
     $agreement = completionAgreement('draft');
     $this->actingAs(lifecycleUser('system-administrator'));

@@ -22,10 +22,10 @@ if (! $user->hasRole('system-administrator', 'management', 'legal-review-officer
     });
 }
 $stats = [
-    ['label'=>'Total Partners','value'=>(clone $partnerBase)->count(),'note'=>'Institutional relationships','icon'=>'building-office'],
-    ['label'=>'Active MoUs','value'=>(clone $agreementBase)->where('status','active')->count(),'note'=>'Currently active agreements','icon'=>'document-check'],
-    ['label'=>'In Approval','value'=>(clone $agreementBase)->whereIn('status',['submitted','under_review'])->count(),'note'=>'Awaiting review decisions','icon'=>'check-circle'],
-    ['label'=>'Overdue Delivery','value'=>(clone $obligationBase)->whereNotNull('due_date')->whereDate('due_date','<',today())->whereNotIn('status',['completed','cancelled'])->count(),'note'=>'Commitments requiring attention','icon'=>'exclamation-triangle'],
+    ['label'=>'Total Partners','value'=>(clone $partnerBase)->count(),'note'=>'Institutional relationships','icon'=>'building-office','tone'=>'emerald'],
+    ['label'=>'Active MoUs','value'=>(clone $agreementBase)->where('status','active')->count(),'note'=>'Currently active agreements','icon'=>'document-check','tone'=>'blue'],
+    ['label'=>'In Approval','value'=>(clone $agreementBase)->whereIn('status',['submitted','under_review'])->count(),'note'=>'Awaiting review decisions','icon'=>'check-circle','tone'=>'amber'],
+    ['label'=>'Overdue Delivery','value'=>(clone $obligationBase)->whereNotNull('due_date')->whereDate('due_date','<',today())->whereNotIn('status',['completed','cancelled'])->count(),'note'=>'Commitments requiring attention','icon'=>'exclamation-triangle','tone'=>'red'],
 ];
 $recentAgreements=(clone $agreementBase)->with(['partner','department'])->latest()->take(6)->get();
 $renewals=(clone $agreementBase)->with('partner')->whereNotNull('expiry_date')->whereBetween('expiry_date',[today(),today()->addDays(90)])->whereNotIn('status',['expired','terminated'])->orderBy('expiry_date')->take(5)->get();
@@ -35,13 +35,16 @@ $statusMax=max(1,(int)$statusCounts->max());
 $criticalCount=(clone $obligationBase)->whereNotNull('due_date')->whereDate('due_date','<',today())->whereNotIn('status',['completed','cancelled'])->count() + (clone $agreementBase)->whereNotNull('expiry_date')->whereDate('expiry_date','<',today())->whereNotIn('status',['expired','terminated'])->count();
 @endphp
 <div class="flex w-full flex-1 flex-col gap-6">
-    <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-zinc-500">Institutional Partnership Management · Executive Workspace</p>
-            <h1 class="mt-1 text-3xl font-semibold tracking-tight">Executive Dashboard</h1>
-            <p class="mt-1 text-sm text-zinc-500">Live partnership, approval, delivery and renewal intelligence.</p>
+    <header class="overflow-hidden rounded-2xl bg-gradient-to-r from-[#016b4b] to-[#078660] p-6 text-white shadow-lg shadow-emerald-950/10 lg:flex lg:items-center lg:justify-between lg:p-8">
+        <div class="flex items-center gap-5">
+            <img src="https://ug.nsuk.edu.ng/api/global/logo" alt="NSUK crest" class="hidden size-20 rounded-full bg-white p-1 shadow-md sm:block">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[.18em] text-emerald-100">Nasarawa State University, Keffi</p>
+                <h1 class="mt-2 text-3xl font-semibold tracking-tight !text-white">Partnership Executive Dashboard</h1>
+                <p class="mt-2 text-sm text-white/75">Live oversight of partnerships, approvals, delivery and renewals.</p>
+            </div>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="mt-5 flex flex-wrap gap-2 lg:mt-0 lg:justify-end">
             @can('alerts.view')<flux:button variant="ghost" icon="bell" :href="route('alerts.index')">Operational Alerts @if($criticalCount > 0)<span class="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">{{ $criticalCount }}</span>@endif</flux:button>@endcan
             @can('reports.view')<flux:button variant="ghost" :href="route('reports.index')">Management Reports</flux:button>@endcan
             @can('agreements.create')<flux:button variant="primary" :href="route('agreements.create')">New MoU</flux:button>@endcan
@@ -56,7 +59,7 @@ $criticalCount=(clone $obligationBase)->whereNotNull('due_date')->whereDate('due
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach($stats as $stat)
-            <article class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"><div class="flex items-start justify-between"><div><p class="text-sm font-medium text-zinc-500">{{ $stat['label'] }}</p><p class="mt-2 text-3xl font-semibold">{{ $stat['value'] }}</p></div><div class="flex size-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800"><flux:icon :name="$stat['icon']" class="size-5 text-zinc-600 dark:text-zinc-300"/></div></div><p class="mt-3 text-xs text-zinc-500">{{ $stat['note'] }}</p></article>
+            <article @class(['rounded-xl border border-t-4 bg-white p-5 shadow-sm','border-t-emerald-500'=>$stat['tone']==='emerald','border-t-blue-500'=>$stat['tone']==='blue','border-t-amber-500'=>$stat['tone']==='amber','border-t-red-500'=>$stat['tone']==='red'])><div class="flex items-start justify-between"><div><p class="text-sm font-medium text-zinc-500">{{ $stat['label'] }}</p><p class="mt-2 text-3xl font-semibold text-[#18277f]">{{ $stat['value'] }}</p></div><div class="flex size-11 items-center justify-center rounded-xl bg-emerald-50"><flux:icon :name="$stat['icon']" class="size-5 text-[#016b4b]"/></div></div><p class="mt-3 text-xs text-zinc-500">{{ $stat['note'] }}</p></article>
         @endforeach
     </div>
 

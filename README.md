@@ -33,7 +33,24 @@ The prototype seed creates these accounts with password `password`:
 | Department Officer | officer@example.com |
 | Read-only User | viewer@example.com |
 
-These credentials are for local demonstrations only. Do not run `php artisan db:seed` with these accounts in production.
+These credentials are for demonstrations only. Replace them before using the system for live institutional data.
+
+## Deploy to Render
+
+The repository includes a production Docker image and `render.yaml` Blueprint. The Blueprint creates a free Render web service and PostgreSQL database, runs migrations, seeds the demonstration accounts, enables HTTPS URL generation, and configures `/up` as the health check.
+
+1. In Render, select **New → Blueprint** and connect this GitHub repository.
+2. Select the branch containing `render.yaml`.
+3. For `APP_KEY`, paste the output of:
+
+```bash
+php artisan key:generate --show
+```
+
+4. Apply the Blueprint and wait for the web service health check to pass.
+5. Open the generated `onrender.com` address and sign in with one of the demonstration accounts above.
+
+Render automatically provides `RENDER_EXTERNAL_URL`, which the application uses as its production URL. The free service filesystem is temporary, so uploaded agreement files are suitable for the demonstration but require persistent object storage or a paid persistent disk before real institutional use.
 
 ## Background tasks
 
