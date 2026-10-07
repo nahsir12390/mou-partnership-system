@@ -4,7 +4,6 @@ use App\Models\ActivityLog;
 use App\Models\Agreement;
 use App\Models\Document;
 use App\Models\Partner;
-use App\Models\RenewalRecord;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,8 +61,8 @@ test('renewal decision preserves expiry history and updates agreement', function
         'notes' => 'Renewed by management committee.',
     ])->assertRedirect(route('agreements.show', $agreement));
 
-    expect(RenewalRecord::count())->toBe(1)
-        ->and(RenewalRecord::firstOrFail()->previous_expiry_date->format('Y-m-d'))->toBe('2026-12-31')
+    expect($agreement->renewalRecords()->count())->toBe(1)
+        ->and($agreement->renewalRecords()->firstOrFail()->previous_expiry_date->format('Y-m-d'))->toBe('2026-12-31')
         ->and($agreement->fresh()->expiry_date->format('Y-m-d'))->toBe('2027-12-31')
         ->and($agreement->fresh()->renewal_status)->toBe('renewed');
 });

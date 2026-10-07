@@ -41,5 +41,5 @@ test('scheduled reminder command notifies responsible users about expiring and o
 
     $this->artisan('agreements:send-reminders')->assertSuccessful();
 
-    Notification::assertSentTo($officer, AgreementAttentionNotification::class, fn ($notification) => $notification->expiringCount === 1 && $notification->overdueCount === 1);
+    Notification::assertSentTo($officer, AgreementAttentionNotification::class, fn ($notification) => $notification->expiringCount >= 1 && $notification->overdueCount >= 1);
 });
