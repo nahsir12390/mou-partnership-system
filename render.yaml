@@ -12,14 +12,10 @@ services:
         value: production
       - key: APP_DEBUG
         value: "false"
-      - key: APP_KEY
-        sync: false
       - key: DB_CONNECTION
-        value: pgsql
-      - key: DATABASE_URL
-        fromDatabase:
-          name: nsuk-partnership-db
-          property: connectionString
+        value: sqlite
+      - key: DB_DATABASE
+        value: /var/www/html/database/database.sqlite
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
@@ -34,11 +30,3 @@ services:
         value: database
       - key: MAIL_MAILER
         value: log
-      - key: DEMO_MODE
-        value: "true"
-
-databases:
-  - name: nsuk-partnership-db
-    plan: free
-    databaseName: nsuk_partnership
-    user: nsuk_partnership_user

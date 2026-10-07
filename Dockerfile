@@ -18,8 +18,8 @@ RUN npm ci && npm run build
 FROM php:8.3-apache
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libicu-dev libpq-dev libzip-dev unzip \
-    && docker-php-ext-install intl pdo_pgsql zip \
+    && apt-get install -y --no-install-recommends libicu-dev libsqlite3-dev libzip-dev unzip \
+    && docker-php-ext-install intl pdo_sqlite zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,7 +29,7 @@ COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/start.sh /usr/local/bin/start-render
 
 RUN chmod +x /usr/local/bin/start-render \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache database
 
 ENV APP_ENV=production \
     APP_DEBUG=false \

@@ -37,20 +37,14 @@ These credentials are for demonstrations only. Replace them before using the sys
 
 ## Deploy to Render
 
-The repository includes a production Docker image and `render.yaml` Blueprint. The Blueprint creates a free Render web service and PostgreSQL database, runs migrations, seeds the demonstration accounts, enables HTTPS URL generation, and configures `/up` as the health check.
+The repository includes a Docker image and `render.yaml` Blueprint for a disposable presentation environment. It creates a free Render web service, generates a temporary application key, initializes an SQLite database, runs migrations, reloads all demonstration data whenever the container starts, enables HTTPS URL generation, and configures `/up` as the health check.
 
 1. In Render, select **New → Blueprint** and connect this GitHub repository.
 2. Select the branch containing `render.yaml`.
-3. For `APP_KEY`, paste the output of:
+3. Apply the Blueprint and wait for the web service health check to pass.
+4. Open the generated `onrender.com` address and sign in with one of the demonstration accounts above.
 
-```bash
-php artisan key:generate --show
-```
-
-4. Apply the Blueprint and wait for the web service health check to pass.
-5. Open the generated `onrender.com` address and sign in with one of the demonstration accounts above.
-
-Render automatically provides `RENDER_EXTERNAL_URL`, which the application uses as its production URL. The free service filesystem is temporary, so uploaded agreement files are suitable for the demonstration but require persistent object storage or a paid persistent disk before real institutional use.
+Render automatically provides `RENDER_EXTERNAL_URL`, which the application uses as its presentation URL. The free service filesystem and SQLite database are intentionally temporary. If Render replaces or restarts the container, the application rebuilds the database and reloads the demonstration portfolio automatically. Changes made during a presentation can therefore be lost after a restart. Uploaded files also require persistent object storage before real institutional use.
 
 ## Background tasks
 
