@@ -28,6 +28,7 @@ class AgreementLifecycleController extends Controller
         abort_unless(in_array($agreement->status, $allowed, true), 422, 'This lifecycle action is not available at the current stage.');
 
         if ($data['action'] === 'activate') {
+            abort_unless($agreement->approvalActions()->where('action', 'approve')->exists(), 422, 'A recorded management approval is required before activation.');
             abort_unless($agreement->documents()->where('type', 'signed_mou')->where('is_final', true)->exists(), 422, 'Upload and mark a signed MoU as the final copy before activation.');
         }
 

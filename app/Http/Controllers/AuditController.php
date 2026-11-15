@@ -12,6 +12,7 @@ class AuditController extends Controller
     {
         $events = ActivityLog::with(['actor', 'agreement'])
             ->when($request->filled('event'), fn ($query) => $query->where('event', $request->string('event')))
+            ->when($request->integer('agreement'), fn ($query) => $query->where('agreement_id', $request->integer('agreement')))
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = $request->string('search')->toString();
                 $query->where(function ($scope) use ($search): void {

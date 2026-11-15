@@ -19,12 +19,12 @@ class Agreement extends Model
     protected $fillable = [
         'reference_number', 'title', 'partner_id', 'department_id', 'responsible_officer_id',
         'agreement_type', 'purpose', 'start_date', 'expiry_date', 'status', 'approval_stage',
-        'renewal_status', 'notes', 'created_by',
+        'renewal_status', 'notes', 'created_by', 'is_demo',
     ];
 
     protected function casts(): array
     {
-        return ['start_date' => 'date', 'expiry_date' => 'date'];
+        return ['start_date' => 'date', 'expiry_date' => 'date', 'is_demo' => 'boolean'];
     }
 
     public function partner(): BelongsTo
@@ -70,5 +70,21 @@ class Agreement extends Model
     public function activityLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class)->latest();
+    }
+
+    /**
+     * Calendar days from the institutional local date to expiry.
+     * A negative result means the agreement has expired.
+     */
+    public function daysUntilExpiry(?CarbonImmutable $onDate = null): ?int
+    {
+        if (! $this->expiry_date) {
+            return null;
+        }
+
+        $today = ($onDate ?? CarbonImmutable::now(config('institution.timezone')))->startOfDay();
+        $expiry = CarbonImmutable::parse($this->expiry_date->toDateString(), config('institution.timezone'))->startOfDay();
+
+        return $today->diffInDays($expiry, false);
     }
 }

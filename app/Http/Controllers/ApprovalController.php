@@ -42,8 +42,10 @@ class ApprovalController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $query = $this->scopeVisible(Agreement::with(['partner', 'department', 'responsibleOfficer']), $user)
+        $institutionQuery = $this->scopeVisible(Agreement::with(['partner', 'department', 'responsibleOfficer']), $user)
             ->whereIn('status', ['submitted', 'under_review']);
+
+        $query = clone $institutionQuery;
 
         if ($user->hasRole('legal-review-officer')) {
             $query->where(function (Builder $stage) {
@@ -56,17 +58,20 @@ class ApprovalController extends Controller
 
         $queueSummary = [
             'assigned' => (clone $query)->count(),
-            'legal' => (clone $query)->where(function (Builder $stage) {
+            'legal' => (clone $institutionQuery)->where(function (Builder $stage) {
                 $stage->where('status', 'submitted')->orWhere('approval_stage', 'Legal review');
             })->count(),
-            'management' => (clone $query)->where('approval_stage', 'Management approval')->count(),
+            'management' => (clone $institutionQuery)->where('approval_stage', 'Management approval')->count(),
         ];
+        $queueLabel = $user->hasRole('system-administrator')
+            ? 'Institution-wide pending reviews'
+            : 'Assigned to your review role';
 
         $agreements = $query
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->latest('updated_at')->paginate(12)->withQueryString();
 
-        return view('approvals.index', compact('agreements', 'queueSummary'));
+        return view('approvals.index', compact('agreements', 'queueSummary', 'queueLabel'));
     }
 
     public function submit(Request $request, Agreement $agreement): RedirectResponse
@@ -82,7 +87,6 @@ class ApprovalController extends Controller
     public function review(Request $request, Agreement $agreement): RedirectResponse
     {
         abort_unless($request->user()->hasPermission('approvals.review'), 403);
-        $this->ensureVisible($agreement, $request->user());
         $data = $request->validate([
             'decision' => ['required', Rule::in(['start_review', 'legal_clear', 'approve', 'request_changes', 'reject'])],
             'comment' => [Rule::requiredIf(fn () => in_array($request->input('decision'), ['request_changes', 'reject'], true)), 'nullable', 'string', 'max:3000'],
@@ -100,9 +104,7 @@ class ApprovalController extends Controller
             'legal_clear', 'approve', 'request_changes', 'reject' => ['under_review'],
             default => abort(422, 'Unsupported approval decision.'),
         };
-        abort_unless(in_array($agreement->status, $allowed, true), 422, 'This decision is not available at the current workflow stage.');
-        $this->authorizeStageDecision($request, $agreement, $data['decision']);
-        $this->transition($request, $agreement, $toStatus, $data['decision'], $stage, $data['comment'] ?? null);
+        $this->transition($request, $agreement, $toStatus, $data['decision'], $stage, $data['comment'] ?? null, $allowed);
 
         return back()->with('success', $message);
     }
@@ -135,12 +137,18 @@ class ApprovalController extends Controller
         abort(422, 'The agreement does not have a valid current review stage.');
     }
 
-    private function transition(Request $request, Agreement $agreement, string $toStatus, string $action, string $stage, ?string $comment): void
+    private function transition(Request $request, Agreement $agreement, string $toStatus, string $action, string $stage, ?string $comment, ?array $allowedStatuses = null): void
     {
-        DB::transaction(function () use ($request, $agreement, $toStatus, $action, $stage, $comment) {
-            $fromStatus = $agreement->status;
-            $agreement->update(['status' => $toStatus, 'approval_stage' => $stage]);
-            $agreement->approvalActions()->create(['user_id' => $request->user()->id, 'action' => $action, 'from_status' => $fromStatus, 'to_status' => $toStatus, 'comment' => $comment]);
+        DB::transaction(function () use ($request, $agreement, $toStatus, $action, $stage, $comment, $allowedStatuses) {
+            $lockedAgreement = Agreement::lockForUpdate()->findOrFail($agreement->id);
+            $this->ensureVisible($lockedAgreement, $request->user());
+            if ($allowedStatuses !== null) {
+                abort_unless(in_array($lockedAgreement->status, $allowedStatuses, true), 422, 'This decision is not available at the current workflow stage.');
+                $this->authorizeStageDecision($request, $lockedAgreement, $action);
+            }
+            $fromStatus = $lockedAgreement->status;
+            $lockedAgreement->update(['status' => $toStatus, 'approval_stage' => $stage]);
+            $lockedAgreement->approvalActions()->create(['user_id' => $request->user()->id, 'action' => $action, 'from_status' => $fromStatus, 'to_status' => $toStatus, 'comment' => $comment]);
         });
     }
 }

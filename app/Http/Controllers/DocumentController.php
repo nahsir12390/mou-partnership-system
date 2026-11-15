@@ -57,7 +57,18 @@ class DocumentController extends Controller
                 });
             })->latest()->paginate(15)->withQueryString();
 
-        return view('documents.index', compact('documents'));
+        $user = $request->user();
+        $uploadAgreementCount = Agreement::query()
+            ->when(! $user->hasRole('system-administrator', 'management', 'legal-review-officer'), function (Builder $query) use ($user) {
+                $query->where(function (Builder $scope) use ($user) {
+                    if ($user->department_id) {
+                        $scope->where('department_id', $user->department_id);
+                    }
+                    $scope->orWhere('responsible_officer_id', $user->id)->orWhere('created_by', $user->id);
+                });
+            })->count();
+
+        return view('documents.index', compact('documents', 'uploadAgreementCount'));
     }
 
     public function create(Request $request, Agreement $agreement): View

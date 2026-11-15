@@ -3,7 +3,7 @@
 <div class="grid gap-6 lg:grid-cols-2">
     <div class="lg:col-span-2"><h2 class="font-semibold text-zinc-950 dark:text-white">Organization Information</h2><p class="mt-1 text-sm text-zinc-500">Create the institutional profile used across agreements, reporting and partnership records.</p></div>
     <flux:input name="name" label="Organization name" value="{{ old('name', $partner->name ?? '') }}" placeholder="e.g. Nasarawa State University" required />
-    <flux:select name="category" label="Partner category"><option value="">Select category</option>@foreach(['Academic Institution','Government Agency','Private Sector','NGO / Foundation','International Organization','Research Institution','Professional Body','Other'] as $category)<option value="{{ $category }}" @selected(old('category', $partner->category ?? '') === $category)>{{ $category }}</option>@endforeach</flux:select>
+    <flux:select name="category" label="Partner category"><option value="">Select category</option>@foreach($partnerCategories as $category)<option value="{{ $category }}" @selected(old('category', $partner->category ?? '') === $category)>{{ $category }}</option>@endforeach</flux:select>
     <flux:input name="website" label="Official website" type="url" value="{{ old('website', $partner->website ?? '') }}" placeholder="https://example.org" />
     <flux:select name="status" label="Relationship status" required>@foreach(['active'=>'Active','prospective'=>'Prospective','inactive'=>'Inactive'] as $value=>$label)<option value="{{ $value }}" @selected(old('status', $partner->status ?? 'active') === $value)>{{ $label }}</option>@endforeach</flux:select>
 

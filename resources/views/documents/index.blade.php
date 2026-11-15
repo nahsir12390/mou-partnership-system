@@ -7,8 +7,8 @@
         </div>
 
         <form method="GET" class="grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 sm:grid-cols-[1fr_220px_auto]">
-            <input name="search" value="{{ request('search') }}" placeholder="Search document, agreement or reference..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
-            <select name="type" class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+            <label class="sr-only" for="document-search">Search documents</label><input id="document-search" name="search" value="{{ request('search') }}" placeholder="Search document, agreement or reference..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+            <label class="sr-only" for="document-type">Document type</label><select id="document-type" name="type" class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-800">
                 <option value="">All document types</option>
                 @foreach (['draft_mou'=>'Draft MoU','reviewed_mou'=>'Reviewed MoU','signed_mou'=>'Signed MoU','supporting_document'=>'Supporting Document','correspondence'=>'Correspondence','other'=>'Other'] as $value => $label)
                     <option value="{{ $value }}" @selected(request('type') === $value)>{{ $label }}</option>
@@ -70,6 +70,14 @@
                                     <flux:icon name="folder-open" class="mx-auto size-8 text-zinc-300" />
                                     <p class="mt-3 font-medium">No documents found</p>
                                     <p class="mt-1 text-sm text-zinc-500">Agreement files will appear here once uploaded.</p>
+                                    @can('documents.manage')
+                                        @if ($uploadAgreementCount)
+                                            <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Choose an agreement first, then select <strong>Upload Document</strong> from its record.</p>
+                                            <flux:button class="mt-4" variant="primary" :href="route('agreements.index')">Choose an Agreement</flux:button>
+                                        @else
+                                            <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Create or request access to an agreement before uploading its documents.</p>
+                                        @endif
+                                    @endcan
                                 </td>
                             </tr>
                         @endforelse

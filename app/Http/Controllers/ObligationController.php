@@ -100,6 +100,14 @@ class ObligationController extends Controller
         ], $this->assignmentOptions($request)));
     }
 
+    public function show(Request $request, Obligation $obligation): View
+    {
+        $this->ensureVisible($obligation, $request->user());
+        $obligation->load(['agreement.partner', 'department', 'responsibleOfficer']);
+
+        return view('obligations.show', compact('obligation'));
+    }
+
     public function update(Request $request, Obligation $obligation): RedirectResponse
     {
         $this->ensureVisible($obligation, $request->user());

@@ -9,9 +9,13 @@ services:
       - key: APP_NAME
         value: NSUK Partnership Management System
       - key: APP_ENV
-        value: production
+        value: demo
       - key: APP_DEBUG
         value: "false"
+      - key: DEMO_MODE
+        value: "true"
+      - key: INSTITUTION_TIMEZONE
+        value: Africa/Lagos
       - key: DB_CONNECTION
         value: sqlite
       - key: DB_DATABASE

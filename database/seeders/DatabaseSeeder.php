@@ -40,6 +40,10 @@ class DatabaseSeeder extends Seeder
             Department::updateOrCreate(['code' => $department['code']], $department);
         }
 
+        if (! config('institution.demo_mode') && ! app()->runningUnitTests()) {
+            return;
+        }
+
         $roleIds = Role::pluck('id', 'slug');
         $departmentIds = Department::pluck('id', 'code');
 
@@ -94,6 +98,7 @@ class DatabaseSeeder extends Seeder
         $agreements = [
             [
                 'reference_number' => 'NSUK/MOU/2026/001',
+                'is_demo' => true,
                 'title' => 'Joint Research and Postgraduate Development Programme',
                 'partner' => 'Global Research Institute',
                 'department' => 'RAP',
@@ -107,6 +112,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2026/002',
+                'is_demo' => true,
                 'title' => 'West African Academic Staff Exchange',
                 'partner' => 'West Africa Academic Network',
                 'department' => 'RAP',
@@ -120,6 +126,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2026/003',
+                'is_demo' => true,
                 'title' => 'Digital Skills and Employability Initiative',
                 'partner' => 'Digital Skills Foundation',
                 'department' => 'ICT',
@@ -133,6 +140,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2026/004',
+                'is_demo' => true,
                 'title' => 'Public Policy Research and Advisory Partnership',
                 'partner' => 'Regional Public Policy Centre',
                 'department' => 'OVC',
@@ -146,6 +154,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2026/005',
+                'is_demo' => true,
                 'title' => 'Student Internship and Enterprise Mentorship Scheme',
                 'partner' => 'Enterprise Development Group',
                 'department' => 'RAP',
@@ -159,6 +168,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2026/006',
+                'is_demo' => true,
                 'title' => 'Campus Innovation and Entrepreneurship Hub',
                 'partner' => 'Enterprise Development Group',
                 'department' => 'RAP',
@@ -172,6 +182,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'reference_number' => 'NSUK/MOU/2025/014',
+                'is_demo' => true,
                 'title' => 'Community Digital Literacy Outreach',
                 'partner' => 'Digital Skills Foundation',
                 'department' => 'ICT',
@@ -201,6 +212,7 @@ class DatabaseSeeder extends Seeder
                     'start_date' => $record['start_date'],
                     'expiry_date' => $record['expiry_date'],
                     'notes' => 'Demonstration record prepared for the NSUK partnership management presentation.',
+                    'is_demo' => $record['is_demo'],
                     'created_by' => $admin->id,
                 ],
             );

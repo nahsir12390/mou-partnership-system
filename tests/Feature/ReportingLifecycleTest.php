@@ -33,6 +33,34 @@ test('department officer cannot access management reports', function () {
     $this->actingAs(reportUser('department-officer'))->get(route('reports.index'))->assertForbidden();
 });
 
+test('report filters scope both the page and csv export', function () {
+    $department = Department::firstOrFail();
+    $partner = Partner::firstOrFail();
+    $scoped = lifecycleAgreement([
+        'reference_number' => 'MOU/FILTERED/001',
+        'department_id' => $department->id,
+        'partner_id' => $partner->id,
+        'status' => 'active',
+        'expiry_date' => today()->addMonth(),
+    ]);
+    $outside = lifecycleAgreement([
+        'reference_number' => 'MOU/OUTSIDE/001',
+        'department_id' => Department::whereKeyNot($department->id)->firstOrFail()->id,
+        'status' => 'draft',
+    ]);
+    $query = ['department' => $department->id, 'status' => 'active'];
+
+    $this->actingAs(reportUser('management'))
+        ->get(route('reports.index', $query))
+        ->assertOk()
+        ->assertSee($scoped->reference_number)
+        ->assertDontSee($outside->reference_number);
+
+    $export = $this->actingAs(reportUser('management'))->get(route('reports.export', ['type' => 'agreements'] + $query));
+    $export->assertOk();
+    expect($export->streamedContent())->toContain($scoped->reference_number)->not->toContain($outside->reference_number);
+});
+
 test('lifecycle command marks expired active agreement as expired and renewal due', function () {
     $agreement = lifecycleAgreement(['expiry_date' => today()->subDay()]);
     $this->artisan('agreements:sync-lifecycle')->assertSuccessful();

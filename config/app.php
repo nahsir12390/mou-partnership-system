@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('INSTITUTION_TIMEZONE', 'Africa/Lagos'),
 
     /*
     |--------------------------------------------------------------------------

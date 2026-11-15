@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('agreements/{agreement}/submit', [ApprovalController::class, 'submit'])->middleware('can:agreements.update')->name('agreements.submit');
     Route::post('agreements/{agreement}/review', [ApprovalController::class, 'review'])->middleware('can:approvals.review')->name('agreements.review');
     Route::get('obligations', [ObligationController::class, 'index'])->middleware('can:obligations.view')->name('obligations.index');
+    Route::get('obligations/{obligation}', [ObligationController::class, 'show'])->middleware('can:obligations.view')->name('obligations.show');
     Route::get('agreements/{agreement}/obligations/create', [ObligationController::class, 'create'])->middleware('can:obligations.manage')->name('obligations.create');
     Route::post('agreements/{agreement}/obligations', [ObligationController::class, 'store'])->middleware('can:obligations.manage')->name('obligations.store');
     Route::get('obligations/{obligation}/edit', [ObligationController::class, 'edit'])->middleware('can:obligations.manage')->name('obligations.edit');

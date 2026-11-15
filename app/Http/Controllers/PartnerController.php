@@ -6,6 +6,7 @@ use App\Models\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class PartnerController extends Controller
@@ -68,8 +69,10 @@ class PartnerController extends Controller
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
             ->latest()->paginate(10)->withQueryString();
 
-        $categories = $this->scopeVisible(Partner::query(), $request->user())
-            ->whereNotNull('category')->distinct()->orderBy('category')->pluck('category');
+        $categories = collect(config('institution.partner_categories'))
+            ->merge($this->scopeVisible(Partner::query(), $request->user())
+                ->whereNotNull('category')->distinct()->pluck('category'))
+            ->unique()->sort()->values();
 
         return view('partners.index', compact('partners', 'categories'));
     }
@@ -113,7 +116,7 @@ class PartnerController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:255'], 'category' => ['nullable', 'string', 'max:100'], 'country' => ['nullable', 'string', 'max:100'], 'state' => ['nullable', 'string', 'max:100'], 'city' => ['nullable', 'string', 'max:100'], 'address' => ['nullable', 'string', 'max:1000'], 'website' => ['nullable', 'url', 'max:255'], 'contact_name' => ['nullable', 'string', 'max:255'], 'contact_email' => ['nullable', 'email', 'max:255'], 'contact_phone' => ['nullable', 'string', 'max:50'], 'status' => ['required', 'in:active,inactive,prospective'], 'notes' => ['nullable', 'string', 'max:3000'],
+            'name' => ['required', 'string', 'max:255'], 'category' => ['nullable', 'string', 'max:100', Rule::in(config('institution.partner_categories'))], 'country' => ['nullable', 'string', 'max:100'], 'state' => ['nullable', 'string', 'max:100'], 'city' => ['nullable', 'string', 'max:100'], 'address' => ['nullable', 'string', 'max:1000'], 'website' => ['nullable', 'url', 'max:255'], 'contact_name' => ['nullable', 'string', 'max:255'], 'contact_email' => ['nullable', 'email', 'max:255'], 'contact_phone' => ['nullable', 'string', 'max:50'], 'status' => ['required', 'in:active,inactive,prospective'], 'notes' => ['nullable', 'string', 'max:3000'],
         ]);
     }
 }

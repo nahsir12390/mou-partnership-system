@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable(['name', 'email', 'password', 'department_id', 'role_id', 'job_title', 'phone', 'is_active', 'email_verified_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     private const ROLE_PERMISSIONS = [
         'system-administrator' => ['*'],
@@ -60,6 +61,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdministrator(): bool
     {
         return $this->hasRole('system-administrator');
+    }
+
+    public function isDemoAccount(): bool
+    {
+        return in_array($this->email, config('institution.demo_account_emails', []), true);
     }
 
     public function canManageUsers(): bool

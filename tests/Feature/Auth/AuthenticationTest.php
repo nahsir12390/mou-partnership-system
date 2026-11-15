@@ -37,6 +37,18 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('demonstration accounts cannot authenticate when presentation mode is disabled', function () {
+    config()->set('institution.demo_mode', false);
+    $user = User::factory()->create(['email' => 'admin@example.com']);
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertSessionHasErrorsIn('email');
+
+    $this->assertGuest();
+});
+
 test('users with two factor enabled are redirected to two factor challenge', function () {
     $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
 

@@ -14,6 +14,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan migrate --force
-php artisan db:seed --force
+
+if [ "${DEMO_MODE:-false}" = "true" ]; then
+    php artisan db:seed --force
+fi
 
 exec apache2-foreground

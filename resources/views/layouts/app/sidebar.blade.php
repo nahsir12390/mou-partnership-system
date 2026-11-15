@@ -6,14 +6,14 @@
     <flux:sidebar.header>
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-xl px-1 py-2" wire:navigate>
             <img src="https://ug.nsuk.edu.ng/api/global/logo" alt="NSUK crest" class="nsuk-crest size-11 shrink-0">
-            <div class="min-w-0"><p class="truncate text-sm font-semibold text-white">NSUK Partnership</p><p class="truncate text-[11px] text-white/60">MoU Management System</p></div>
+            <div class="min-w-0"><p class="truncate text-sm font-semibold text-white">NSUK Partnership</p><p class="truncate text-[11px] text-white/80">MoU Management System</p></div>
         </a>
         <flux:sidebar.collapse class="lg:hidden"/>
     </flux:sidebar.header>
 
     <div class="mx-3 mb-4 rounded-xl border border-white/10 bg-white/10 p-3">
         <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-[#23d9a0]"></span><span class="text-xs font-medium text-white">System operational</span></div>
-        <p class="mt-1 text-[11px] text-white/55">Nasarawa State University, Keffi</p>
+        <p class="mt-1 text-[11px] text-white/80">Nasarawa State University, Keffi</p>
     </div>
 
     <flux:sidebar.nav>
@@ -50,7 +50,7 @@
     </flux:sidebar.nav>
 
     <flux:spacer/>
-    <div class="mx-3 mb-3 rounded-xl border border-white/10 bg-white/8 p-3"><p class="text-[11px] font-semibold uppercase tracking-wider text-[#86f2d1]">Knowledge for development</p><p class="mt-1 text-xs text-white/55">Institutional partnership workspace</p></div>
+    <div class="mx-3 mb-3 rounded-xl border border-white/20 bg-white/10 p-3"><p class="text-[11px] font-semibold uppercase tracking-wider text-[#b9ffe8]">Knowledge for development</p><p class="mt-1 text-xs text-white/80">Institutional partnership workspace</p></div>
     <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name"/>
 </flux:sidebar>
 

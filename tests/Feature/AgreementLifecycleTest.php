@@ -46,6 +46,7 @@ test('agreement activation requires a final signed copy', function () {
     $this->actingAs($reviewer)->patch(route('agreements.lifecycle', $agreement), ['action' => 'activate'])->assertStatus(422);
 
     Document::create(['agreement_id' => $agreement->id, 'title' => 'Signed MoU', 'type' => 'signed_mou', 'version' => 1, 'original_name' => 'signed.pdf', 'stored_name' => 'signed.pdf', 'path' => 'agreements/signed.pdf', 'mime_type' => 'application/pdf', 'size' => 100, 'is_final' => true, 'uploaded_by' => $reviewer->id]);
+    $agreement->approvalActions()->create(['user_id' => lifecycleUser('management')->id, 'action' => 'approve', 'from_status' => 'under_review', 'to_status' => 'approved', 'comment' => 'Approved for signature.']);
     $this->actingAs($reviewer)->patch(route('agreements.lifecycle', $agreement), ['action' => 'activate'])->assertRedirect();
     expect($agreement->fresh()->status)->toBe('active')->and($agreement->fresh()->start_date)->not->toBeNull();
 });

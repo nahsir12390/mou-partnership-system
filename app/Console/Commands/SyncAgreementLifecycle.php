@@ -22,7 +22,7 @@ class SyncAgreementLifecycle extends Command
                 }
 
                 $changes = [];
-                if ($agreement->expiry_date->isPast()) {
+                if ($agreement->daysUntilExpiry() < 0) {
                     if ($agreement->status === 'active') {
                         $changes['status'] = 'expired';
                     }
