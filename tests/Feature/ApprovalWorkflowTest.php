@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\ActivityLog;
 use App\Models\Agreement;
+use App\Models\ApprovalAction;
 use App\Models\Department;
 use App\Models\Partner;
 use App\Models\User;
@@ -30,6 +32,30 @@ test('authorized officer can submit a draft for review and audit action is recor
     expect($agreement->status)->toBe('submitted')->and($agreement->approval_stage)->toBe('Awaiting legal review')->and($agreement->approvalActions()->count())->toBe(1);
     $action = $agreement->approvalActions()->first();
     expect($action->action)->toBe('submitted')->and($action->from_status)->toBe('draft')->and($action->to_status)->toBe('submitted')->and($action->user_id)->toBe($officer->id);
+});
+
+test('workflow actions appear in the agreement audit trail', function () {
+    $agreement = workflowAgreement('draft');
+    $officer = workflowUser('department-officer');
+
+    $this->actingAs($officer)->post(route('agreements.submit', $agreement))->assertRedirect();
+
+    $this->actingAs(workflowUser('system-administrator'))
+        ->get(route('agreements.show', $agreement))
+        ->assertOk()
+        ->assertSee('Record Audit Trail')
+        ->assertSee('ApprovalAction');
+    expect(ActivityLog::where('agreement_id', $agreement->id)->where('subject_type', ApprovalAction::class)->exists())->toBeTrue();
+});
+
+test('review screen requires an intentional decision selection', function () {
+    $agreement = workflowAgreement('submitted', ['approval_stage' => 'Awaiting legal review']);
+
+    $this->actingAs(workflowUser('legal-review-officer'))
+        ->get(route('agreements.show', $agreement))
+        ->assertOk()
+        ->assertSee('Select a review decision')
+        ->assertSee('Record this review decision?');
 });
 
 test('agreement passes through legal review before management approval', function () {

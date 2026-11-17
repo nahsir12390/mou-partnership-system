@@ -57,4 +57,23 @@ $canActAtStage = $reviewUser->hasRole('system-administrator')
 @endphp
 @if(in_array($agreement->status,['submitted','under_review']) && $canActAtStage)<section class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"><h2 class="font-semibold">Review Decision</h2><p class="mt-1 text-sm text-zinc-500">Record the decision available at the current institutional review stage.</p><form method="POST" action="{{ route('agreements.review',$agreement) }}" class="mt-4 grid gap-4 md:grid-cols-3">@csrf<select name="decision" class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 dark:border-zinc-700 dark:bg-zinc-800">@if($agreement->status==='submitted')<option value="start_review">Begin Legal Review</option>@elseif($agreement->approval_stage === 'Legal review')<option value="legal_clear">Clear & Forward to Management</option><option value="request_changes">Return for Changes</option><option value="reject">Reject & Close</option>@elseif($agreement->approval_stage === 'Management approval')<option value="approve">Grant Final Approval</option><option value="request_changes">Return for Changes</option><option value="reject">Reject & Close</option>@endif</select><textarea name="comment" rows="2" placeholder="Decision notes..." class="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 md:col-span-2 dark:border-zinc-700 dark:bg-zinc-800"></textarea><div class="md:col-span-3"><flux:button type="submit" variant="primary">Record Decision</flux:button></div></form></section>@endif
 @endcan
+@can('audit.view')<section class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"><div class="flex items-start justify-between gap-4"><div><h2 class="font-semibold">Record Audit Trail</h2><p class="mt-1 text-sm text-zinc-500">System-recorded changes, including workflow actions, for this agreement.</p></div><flux:button size="sm" variant="ghost" :href="route('audit.index', ['agreement' => $agreement->id])">View complete trail</flux:button></div><div class="mt-5 space-y-3">@forelse($agreement->activityLogs->take(5) as $event)<div class="border-l-2 border-zinc-200 pl-4 dark:border-zinc-700"><div class="flex justify-between gap-4"><p class="text-sm font-medium">{{ $event->description }}</p><time class="text-xs text-zinc-400">{{ $event->created_at->timezone(config('institution.timezone'))->format('d M Y, H:i') }} WAT</time></div><p class="mt-1 text-xs text-zinc-500">{{ $event->actor?->name ?? 'System process' }} · {{ ucfirst($event->event) }}</p></div>@empty<p class="text-sm text-zinc-500">No system audit events have been recorded for this agreement.</p>@endforelse</div></section>@endcan
+@can('approvals.review')<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('form[action$="/review"]').forEach((form) => {
+        const decision = form.querySelector('select[name="decision"]');
+        if (! decision) return;
+        decision.insertAdjacentHTML('afterbegin', '<option value="" selected disabled>Select a review decision</option>');
+        decision.setAttribute('aria-label', 'Review decision');
+        form.querySelector('textarea[name="comment"]')?.setAttribute('aria-label', 'Decision notes');
+        form.addEventListener('submit', (event) => {
+            if (! decision.value || ! window.confirm('Record this review decision?')) {
+                event.preventDefault();
+                return;
+            }
+            form.querySelectorAll('button[type="submit"]').forEach((button) => button.disabled = true);
+        });
+    });
+});
+</script>@endcan
 </div></x-layouts::app>

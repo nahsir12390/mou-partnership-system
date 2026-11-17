@@ -95,7 +95,7 @@ class AgreementController extends Controller
     public function show(Request $request, Agreement $agreement): View
     {
         $this->ensureVisible($agreement, $request->user());
-        $agreement->load(['partner', 'department', 'responsibleOfficer', 'creator', 'approvalActions.user', 'obligations.department', 'obligations.responsibleOfficer', 'documents.uploader', 'renewalRecords.recorder']);
+        $agreement->load(['partner', 'department', 'responsibleOfficer', 'creator', 'approvalActions.user', 'activityLogs.actor', 'obligations.department', 'obligations.responsibleOfficer', 'documents.uploader', 'renewalRecords.recorder']);
 
         return view('agreements.show', compact('agreement'));
     }
