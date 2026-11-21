@@ -30,7 +30,9 @@ test('authorized authenticated users can visit the dashboard', function () {
 
     $this->actingAs($user)
         ->get(route('dashboard'))
-        ->assertOk();
+        ->assertOk()
+        ->assertSee('min-w-0')
+        ->assertSee('md:hidden');
 });
 
 test('authenticated users without an assigned role cannot visit the dashboard', function () {

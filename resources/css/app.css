@@ -90,6 +90,8 @@
     }
 
     .nsuk-main {
+        min-width: 0;
+        max-width: 100%;
         background: radial-gradient(circle at 100% 0%, rgb(1 107 75 / 7%), transparent 26rem), #f5f7fa;
     }
 
