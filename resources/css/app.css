@@ -63,7 +63,7 @@
 
 @layer components {
     .nsuk-sidebar {
-        background: linear-gradient(180deg, #016b4b 0%, #00563d 62%, #004632 100%) !important;
+        background: #007d5b !important;
         border-color: rgb(255 255 255 / 12%) !important;
         color: white;
     }
@@ -75,18 +75,47 @@
         color: rgb(255 255 255 / 86%);
     }
 
-    .nsuk-sidebar a:hover,
-    .nsuk-sidebar button:hover,
-    .nsuk-sidebar [data-current] {
-        color: white !important;
-        background: rgb(255 255 255 / 12%) !important;
+    .nsuk-sidebar [data-flux-sidebar-item] {
+        min-height: 3rem;
+        height: auto;
+        color: #fff !important;
+        padding-block: .65rem;
+        border: 0 !important;
     }
 
-    .nsuk-sidebar [data-flux-sidebar-group-heading] {
-        color: rgb(255 255 255 / 52%) !important;
+    .nsuk-sidebar [data-flux-sidebar-item] [data-content] {
+        font-size: .9375rem;
+        line-height: 1.35;
+        white-space: normal;
+        overflow: visible;
+    }
+
+    .nsuk-sidebar [data-flux-sidebar-item] svg {
+        color: #fff !important;
+    }
+
+    .nsuk-sidebar [data-flux-sidebar-item]:hover,
+    .nsuk-sidebar [data-flux-sidebar-item][data-current] {
+        color: white !important;
+        background: rgb(255 255 255 / 18%) !important;
+    }
+
+    .nsuk-sidebar [data-flux-sidebar-item][data-current] {
+        box-shadow: inset -4px 0 white;
+    }
+
+    .nsuk-sidebar [data-flux-sidebar-item]:focus-visible {
+        outline: 2px solid white;
+        outline-offset: 2px;
+    }
+
+    .nsuk-sidebar [data-flux-sidebar-group] > div:first-child {
+        color: #e5fff5 !important;
         letter-spacing: .08em;
         text-transform: uppercase;
-        font-size: .67rem;
+        font-size: .75rem;
+        white-space: normal;
+        line-height: 1.4;
     }
 
     .nsuk-main {
