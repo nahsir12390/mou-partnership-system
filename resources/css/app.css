@@ -124,6 +124,25 @@
         background: radial-gradient(circle at 100% 0%, rgb(1 107 75 / 7%), transparent 26rem), #f5f7fa;
     }
 
+    .nsuk-banner-actions [data-flux-button] {
+        color: #fff !important;
+        background: #005d43 !important;
+        border: 1px solid rgb(255 255 255 / 65%) !important;
+    }
+
+    .nsuk-banner-actions [data-flux-button] svg {
+        color: #fff !important;
+    }
+
+    .nsuk-banner-actions [data-flux-button]:hover {
+        background: #004832 !important;
+    }
+
+    .nsuk-banner-actions [data-flux-button]:focus-visible {
+        outline: 2px solid white;
+        outline-offset: 2px;
+    }
+
     .nsuk-brand-panel {
         background-image: linear-gradient(135deg, rgb(0 87 62 / 94%), rgb(1 107 75 / 88%)), url('https://ug.nsuk.edu.ng/img/login-bg.163a8f84.jpg');
         background-size: cover;
